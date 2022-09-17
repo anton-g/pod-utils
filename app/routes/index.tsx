@@ -1,6 +1,6 @@
 import type { LoaderArgs } from '@remix-run/node'
 import { json, fetch } from '@remix-run/node'
-import { Form, useLoaderData } from '@remix-run/react'
+import { Form, useLoaderData, useSearchParams } from '@remix-run/react'
 import SpotifyWebApi from 'spotify-web-api-node'
 
 // itunes: 1506059489
@@ -60,34 +60,51 @@ export const loader = async ({ request }: LoaderArgs) => {
 
 export default function Index() {
   const { itunesEpisodes, spotifyEpisodes } = useLoaderData<typeof loader>()
+  const [searchParams] = useSearchParams()
+  const itunesId = searchParams.get('i') || undefined
+  const spotifyId = searchParams.get('s') || undefined
 
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
-      <h1>Pod utils</h1>
-      <h2>Directory id's</h2>
-      <Form>
-        <label>
-          iTunes
-          <input type="text" name="i"></input>
-        </label>
-        <label>
-          Spotify
-          <input type="text" name="s"></input>
-        </label>
-        <button type="submit">go</button>
+    <div>
+      <h1 className="text-4xl">Pod utils</h1>
+      <h2 className="text-2xl">Directory id's</h2>
+      <Form className="my-3 flex flex-col gap-2 max-w-sm">
+        <div className="flex flex-col gap-2">
+          <label className="flex flex-col">
+            iTunes
+            <input
+              type="text"
+              name="i"
+              defaultValue={itunesId}
+              className="border-2 rounded p-1"
+            />
+          </label>
+          <label className="flex flex-col">
+            Spotify
+            <input
+              type="text"
+              name="s"
+              defaultValue={spotifyId}
+              className="border-2 rounded p-1"
+            />
+          </label>
+        </div>
+        <button type="submit" className="rounded bg-lime-300 hover:bg-lime-400">
+          fetch
+        </button>
       </Form>
-      <h3>iTunes</h3>
+      <h3 className="text-xl mt-4">iTunes</h3>
       <ul>
         {itunesEpisodes.map((ep) => (
-          <li key={ep.id}>
+          <li key={ep.id} className="leading-relaxed">
             {ep.name} - <ClickToCopy value={ep.id} />
           </li>
         ))}
       </ul>
-      <h3>Spotify</h3>
+      <h3 className="text-xl mt-4">Spotify</h3>
       <ul>
         {spotifyEpisodes.map((ep) => (
-          <li key={ep.id}>
+          <li key={ep.id} className="leading-relaxed">
             {ep.name} - <ClickToCopy value={ep.id} />
           </li>
         ))}
@@ -116,5 +133,12 @@ const ClickToCopy = ({ value }: { value: string }) => {
     navigator.clipboard.writeText(value)
   }
 
-  return <span onClick={handleClick}>{value}</span>
+  return (
+    <button
+      onClick={handleClick}
+      className="underline hover:bg-lime-300 transition"
+    >
+      {value}
+    </button>
+  )
 }
